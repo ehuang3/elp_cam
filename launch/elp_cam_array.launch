@@ -1,0 +1,14 @@
+<launch>
+    <include ns="elp_cam_0" file="$(find elp_cam)/launch/elp_cam_node.launch">
+        <arg name="device_arg" value="0"/>
+    </include>
+    <include ns="elp_cam_1" file="$(find elp_cam)/launch/elp_cam_node.launch">
+        <arg name="device_arg" value="1"/>
+    </include>
+    <!-- <include ns="elp_cam_2" file="$(find elp_cam)/launch/elp_cam_node.launch">
+        <arg name="device_arg" value="2"/>
+    </include>
+    <include ns="elp_cam_3" file="$(find elp_cam)/launch/elp_cam_node.launch">
+        <arg name="device_arg" value="3"/>
+    </include> -->
+</launch>

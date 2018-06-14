@@ -1,0 +1,12 @@
+<launch>
+    <arg name="device_arg" default="0"/>
+    <node name="elp_cam_1" pkg="elp_cam" type="elp_cam_node.py" output="screen">
+        <param name="device" value="$(arg device_arg)" type="int"/>
+        <param name="image_topic" value="image_raw" type="str"/>
+        <param name="camera_info_yaml" value="$(find elp_cam)/calibration_0.yaml" type="str"/>
+    </node>
+    <!-- <node name="elp_cam_1_image_proc" pkg="image_proc" type="image_proc" output="screen">
+        <param name="image_topic" value="image_raw" type="str"/>
+        <param name="camera_info" value="camera_info" type="str"/>
+    </node> -->
+</launch>
