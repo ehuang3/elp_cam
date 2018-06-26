@@ -18,3 +18,7 @@ projection_matrix:
   rows: 3
   cols: 4
   data: [2307.154295, 0, 1362.314339, 0, 0, 2299.420209, 1115.581111, 0, 0, 0, 1, 0]
+camera_frame:
+  q: [-82.61, -589.37, 3.99, -0.00016, -0.00429, 0.00207, 0.99999]
+  # Marker position with respect to tool flange: [0.7, -0.8, 68.6]
+  # Average error: 0.43mm
