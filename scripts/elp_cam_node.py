@@ -76,17 +76,45 @@ def main():
     # Get camera calibration
     camera_info_yaml = rospy.get_param('~camera_info_yaml', 'path')
     cal = yaml_to_CameraInfo(camera_info_yaml)
+    cal_undistort = yaml_to_CameraInfo(camera_info_yaml)
+
+    # Compute K, D, Knew
+    K = np.array(cal.K)
+    K = np.reshape(K, (3,3))
+    D = np.array(cal.D)
+    Knew = K.copy()
+    Knew[(0,1), (0,1)] = 0.7 * Knew[(0,1), (0,1)]
+
+    # Create undistorted calibration.
+    cal_undistort.K = Knew.flatten().tolist()
+    Pnew = np.reshape(np.array(cal.P), (3,4))
+    Pnew[0:3,0:3] = Knew
+    cal_undistort.P = Pnew.flatten().tolist()
+    cal_undistort.D = np.zeros((5,)).tolist()
+
+    # Create OpenCV undistortion map.
+    map1, map2 = cv.fisheye.initUndistortRectifyMap(K, D, np.eye(3), Knew, (2700,1944), cv.CV_16SC2)
 
     # Publish.
-    image_topic = rospy.get_param('~image_topic', '/image_raw')
+    image_topic = rospy.get_param('~image_topic', '/image_rect')
+    camera_info_topic = rospy.get_param('~camera_info_topic', '/camera_info')
     image_pub = rospy.Publisher(image_topic, Image, queue_size=10)
+    camera_info_pub = rospy.Publisher(camera_info_topic, CameraInfo, queue_size=10)
     rate = rospy.Rate(30) # 30hz
     bridge = CvBridge()
     while not rospy.is_shutdown():
+        # Read in frame.
         ret, frame = video.read()
-        frame = undistort(frame, cal)
+
+        # Undistort frame.
+        # frame = cv.fisheye.undistortImage(frame, K, D=D, Knew=Knew)
+        frame = cv.remap(frame, map1, map2, cv.INTER_CUBIC, borderMode=cv.BORDER_CONSTANT)
+
+        # Publish ROS image and calibration.
         img = bridge.cv2_to_imgmsg(frame, encoding="bgr8")
         image_pub.publish(img)
+        camera_info_pub.publish(cal_undistort)
+        
         print 'Capture'
         rate.sleep()
     print 'Closing'
